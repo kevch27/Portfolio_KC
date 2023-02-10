@@ -23,11 +23,11 @@ ORDER BY location, date
 
 -- Select Data to be used in Tableau Dashboard
 SELECT	location,
-		date,
-		total_cases,
-		new_cases,
-		total_deaths,
-		population
+	date,
+	total_cases,
+	new_cases,
+	total_deaths,
+	population
 FROM	Portfolio_KC..CovidDeaths
 WHERE	continent is not null
 ORDER BY location, date
@@ -35,10 +35,10 @@ ORDER BY location, date
 -- Looking at total cases vs total deaths
 -- Looking at mortality rate in United States if infected
 SELECT	location,
-		date,
-		total_cases,
-		total_deaths,
-		(total_deaths/total_cases)*100 AS DeathPercentage
+	date,
+	total_cases,
+	total_deaths,
+	(total_deaths/total_cases)*100 AS DeathPercentage
 FROM	Portfolio_KC..CovidDeaths
 WHERE	continent is not null 
 	AND location = 'United States'
@@ -47,10 +47,10 @@ ORDER BY location, date
 -- Looking at total cases vs population
 -- Looking at infection rate in United States
 SELECT	location,
-		date,
-		population,
-		total_cases,
-		(total_cases/population)*100 AS InfectionPercentage
+	date,
+	population,
+	total_cases,
+	(total_cases/population)*100 AS InfectionPercentage
 FROM	Portfolio_KC..CovidDeaths
 WHERE	continent is not null
 	AND location = 'United States'
@@ -58,9 +58,9 @@ ORDER BY location, date
 
 -- Looking at countries with highest infection rate compare to population
 SELECT	location,
-		population,
-		MAX(total_cases) AS HighestInfectionCount,
-		MAX((total_cases/population))*100 AS InfectionPercentage
+	population,
+	MAX(total_cases) AS HighestInfectionCount,
+	MAX((total_cases/population))*100 AS InfectionPercentage
 FROM	Portfolio_KC..CovidDeaths
 WHERE	continent is not null
 GROUP BY location, population
@@ -68,7 +68,7 @@ ORDER BY InfectionPercentage desc
 
 -- Looking at countries with the highest death count per population
 SELECT	location, 
-		MAX(CAST(total_deaths AS int)) AS TotalDeathCount
+	MAX(CAST(total_deaths AS int)) AS TotalDeathCount
 FROM	Portfolio_KC..CovidDeaths
 Where	continent is not null
 GROUP BY location
@@ -76,7 +76,7 @@ ORDER BY TotalDeathCount desc
 
 -- Looking at continents with the highest death count per population
 SELECT	continent, 
-		MAX(CAST(total_deaths AS int)) AS TotalDeathCount
+	MAX(CAST(total_deaths AS int)) AS TotalDeathCount
 FROM	Portfolio_KC..CovidDeaths
 Where	continent is not null
 GROUP BY continent
@@ -84,9 +84,9 @@ ORDER BY TotalDeathCount desc
 
 -- Looking at global numbers by date
 SELECT	date,
-		SUM(new_cases) AS total_cases,
-		SUM(CAST(new_deaths AS int)) AS total_deaths,
-		SUM(CAST(new_deaths AS int))/SUM(new_cases)*100 AS DeathPercentage
+	SUM(new_cases) AS total_cases,
+	SUM(CAST(new_deaths AS int)) AS total_deaths,
+	SUM(CAST(new_deaths AS int))/SUM(new_cases)*100 AS DeathPercentage
 FROM	Portfolio_KC..CovidDeaths
 WHERE	continent is not null
 GROUP BY date
@@ -94,8 +94,8 @@ ORDER BY date, total_cases
 
 -- Looking at Latest global number
 SELECT	SUM(new_cases) AS total_cases,
-		SUM(CAST(new_deaths AS int)) AS total_deaths,
-		SUM(CAST(new_deaths AS int))/SUM(new_cases)*100 AS DeathPercentage
+	SUM(CAST(new_deaths AS int)) AS total_deaths,
+	SUM(CAST(new_deaths AS int))/SUM(new_cases)*100 AS DeathPercentage
 FROM Portfolio_KC..CovidDeaths
 WHERE continent is not null
 ORDER BY total_cases, total_deaths
@@ -110,10 +110,10 @@ WHERE	dea.continent is not null
 
 -- Looking at total population vs vaccinations
 SELECT	dea.continent,
-		dea.location,
-		dea.date,
-		dea.population,
-		vac.new_vaccinations
+	dea.location,
+	dea.date,
+	dea.population,
+	vac.new_vaccinations
 FROM	Portfolio_KC..CovidDeaths dea
 JOIN	Portfolio_KC..CovidVaccinations vac
 	ON	dea.location = vac.location
@@ -127,11 +127,11 @@ ORDER BY dea.location, dea.date
 WITH	PopvsVac (continent, location, date, population, new_vaccinations, rolling_vaccinated)
 AS		(
 SELECT	dea.continent,
-		dea.location,
-		dea.date,
-		dea.population,
-		vac.new_vaccinations,
-		SUM(CAST(vac.new_vaccinations AS bigint)) OVER (PARTITION BY dea.location ORDER BY dea.location, dea.date) AS rolling_vaccinated
+	dea.location,
+	dea.date,
+	dea.population,
+	vac.new_vaccinations,
+	SUM(CAST(vac.new_vaccinations AS bigint)) OVER (PARTITION BY dea.location ORDER BY dea.location, dea.date) AS rolling_vaccinated
 FROM Portfolio_KC..CovidDeaths dea
 JOIN Portfolio_KC..CovidVaccinations vac
 	ON	dea.location = vac.location
@@ -156,11 +156,11 @@ Rolling_vaccinated numeric
 
 INSERT INTO #PercentPopulationVaccinated
 SELECT	dea.continent,
-		dea.location,
-		dea.date,
-		dea.population,
-		vac.new_vaccinations,
-		SUM(CAST(vac.new_vaccinations AS bigint)) OVER (PARTITION BY dea.location ORDER BY dea.location, dea.date) AS rolling_vaccinated
+	dea.location,
+	dea.date,
+	dea.population,
+	vac.new_vaccinations,
+	SUM(CAST(vac.new_vaccinations AS bigint)) OVER (PARTITION BY dea.location ORDER BY dea.location, dea.date) AS rolling_vaccinated
 FROM	Portfolio_KC..CovidDeaths dea
 JOIN	Portfolio_KC..CovidVaccinations vac
 	ON	dea.location = vac.location
@@ -178,15 +178,15 @@ FROM #PercentPopulationVaccinated
 -- VIEW 1:
 CREATE VIEW LatestGlobalNumber AS
 SELECT	SUM(new_cases) AS total_cases,
-		SUM(cast(new_deaths as int)) AS total_deaths,
-		SUM(cast(new_deaths as int))/SUM(New_Cases)*100 AS DeathPercentage
+	SUM(cast(new_deaths as int)) AS total_deaths,
+	SUM(cast(new_deaths as int))/SUM(New_Cases)*100 AS DeathPercentage
 FROM	Portfolio_KC..CovidDeaths
 WHERE	continent is not null 
 
 -- VIEW 2:
 CREATE VIEW TotalDeathCountPerContinent AS
 SELECT	location,
-		SUM(cast(new_deaths as int)) AS TotalDeathCount
+	SUM(cast(new_deaths as int)) AS TotalDeathCount
 FROM	Portfolio_KC..CovidDeaths
 WHERE	continent is null 
 	AND location not in ('World', 'European Union', 'International', 'High income', 'Upper middle income', 'Lower middle income', 'Low income')
@@ -195,19 +195,19 @@ GROUP by location
 -- VIEW 3:
 CREATE VIEW PercentPopulationInfectedPerCountry AS
 SELECT	Location,
-		Population,
-		MAX(total_cases) AS HighestInfectionCount,
-		Max((total_cases/population))*100 AS PercentPopulationInfected
+	Population,
+	MAX(total_cases) AS HighestInfectionCount,
+	Max((total_cases/population))*100 AS PercentPopulationInfected
 FROM	Portfolio_KC..CovidDeaths
 Group by Location, Population
 
 -- VIEW 4:
 CREATE VIEW PercentPopulationInfected AS
 SELECT	Location,
-		Population,
-		date,
-		MAX(total_cases) AS HighestInfectionCount,
-		Max((total_cases/population))*100 AS PercentPopulationInfected
+	Population,
+	date,
+	MAX(total_cases) AS HighestInfectionCount,
+	Max((total_cases/population))*100 AS PercentPopulationInfected
 FROM	Portfolio_KC..CovidDeaths
 Group by Location, Population, date
 
@@ -239,10 +239,10 @@ WHERE	continent is null
 -- Reason: Prep for Tableau
 -- Note: only for columns that will be used in Tableau Dashboard
 SELECT	dea.population,
-		dea.total_cases,
-		dea.new_cases,
-		dea.total_deaths,
-		vac.new_vaccinations
+	dea.total_cases,
+	dea.new_cases,
+	dea.total_deaths,
+	vac.new_vaccinations
 FROM	Portfolio_KC..CovidDeaths_Clean dea
 JOIN	Portfolio_KC..CovidVaccinations_Clean vac
 	ON	dea.location = vac.location
@@ -250,19 +250,19 @@ JOIN	Portfolio_KC..CovidVaccinations_Clean vac
 ORDER BY dea.population
 
 UPDATE	Portfolio_KC..CovidDeaths_Clean
-SET		total_cases = 0
+SET	total_cases = 0
 WHERE	total_cases IS NULL
 
 UPDATE	Portfolio_KC..CovidDeaths_Clean
-SET		new_cases = 0
+SET	new_cases = 0
 WHERE	new_cases IS NULL
 
 UPDATE	Portfolio_KC..CovidDeaths_Clean
-SET		total_deaths = 0
+SET	total_deaths = 0
 WHERE	total_deaths IS NULL
 
 UPDATE	Portfolio_KC..CovidVaccinations_Clean
-SET		new_vaccinations = 0
+SET	new_vaccinations = 0
 WHERE	new_vaccinations IS NULL
 
 
