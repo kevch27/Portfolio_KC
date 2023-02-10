@@ -125,7 +125,7 @@ ORDER BY dea.location, dea.date
 -- METHOD 1: Using CTE
 
 WITH	PopvsVac (continent, location, date, population, new_vaccinations, rolling_vaccinated)
-AS		(
+AS	(
 SELECT	dea.continent,
 	dea.location,
 	dea.date,
