@@ -1,13 +1,19 @@
--- SQL Portfolio by Kevin Chen, 2/9/2023
+-- SQL Portfolio by Kevin Chen
 -- Dataset Source: https://ourworldindata.org/covid-deaths
--- Section 1: Data Exploration [Ctrl-G Line 10]
--- Section 2: Generate Views to be used for Tableau Dashboard [Ctrl-G Line 176]
--- Section 3: Data Cleaning [Ctrl-G Line 217]
+-- Platform: Microsoft SQL Server Managamenet Studio
+
+-- Demonstrates Inserting, Joins, Partitions, Updating, Using CTE, & Creating Views
+-- Demonstrates the use of SQL to prep for 2 of my Tableau Dashboards:
+-- https://public.tableau.com/app/profile/kevch27/viz/1_CovidInfectionForecast/Dashboard1
+-- https://public.tableau.com/app/profile/kevch27/viz/2_CovidVaccinationTracker/GlobalVaccineTracker
+
+-- Section 1: Data Exploration [Line 16]
+-- Section 2: Generate Views to be used for Tableau Dashboard [Line 182]
+-- Section 3: Data Cleaning [Line 277]
 
 
 
-
--- DATA EXPLORATION IN SQL
+-- SECTION 1: DATA EXPLORATION IN SQL
 
 -- Verify table 'CovidDeaths' is imported correctly
 SELECT	*
@@ -125,7 +131,7 @@ ORDER BY dea.location, dea.date
 -- METHOD 1: Using CTE
 
 WITH	PopvsVac (continent, location, date, population, new_vaccinations, rolling_vaccinated)
-AS	(
+AS		(
 SELECT	dea.continent,
 	dea.location,
 	dea.date,
@@ -173,48 +179,106 @@ FROM #PercentPopulationVaccinated
 
 
 
--- GENERATE VIEWS TO BE USED FOR TABLEAU DASHBOARD
+-- SECTION 2: GENERATE VIEWS TO BE USED FOR TABLEAU DASHBOARD
 
--- VIEW 1:
+-- VIEW 1: for Tableau Dashboard 'CovidInfectionForecast'
 CREATE VIEW LatestGlobalNumber AS
 SELECT	SUM(new_cases) AS total_cases,
-	SUM(cast(new_deaths as int)) AS total_deaths,
-	SUM(cast(new_deaths as int))/SUM(New_Cases)*100 AS DeathPercentage
+	SUM(CAST(new_deaths as int)) AS total_deaths,
+	SUM(CAST(new_deaths as int))/SUM(New_Cases)*100 AS DeathPercentage
 FROM	Portfolio_KC..CovidDeaths
 WHERE	continent is not null 
 
--- VIEW 2:
+-- VIEW 2: for Tableau Dashboard 'CovidInfectionForecast'
 CREATE VIEW TotalDeathCountPerContinent AS
 SELECT	location,
-	SUM(cast(new_deaths as int)) AS TotalDeathCount
+	SUM(CAST(new_deaths as int)) AS TotalDeathCount
 FROM	Portfolio_KC..CovidDeaths
 WHERE	continent is null 
 	AND location not in ('World', 'European Union', 'International', 'High income', 'Upper middle income', 'Lower middle income', 'Low income')
 GROUP by location
 
--- VIEW 3:
+-- VIEW 3: for Tableau Dashboard 'CovidInfectionForecast'
 CREATE VIEW PercentPopulationInfectedPerCountry AS
-SELECT	Location,
-	Population,
+SELECT	location,
+	population,
 	MAX(total_cases) AS HighestInfectionCount,
 	Max((total_cases/population))*100 AS PercentPopulationInfected
 FROM	Portfolio_KC..CovidDeaths
 Group by Location, Population
 
--- VIEW 4:
+-- VIEW 4: for Tableau Dashboard 'CovidInfectionForecast'
 CREATE VIEW PercentPopulationInfected AS
-SELECT	Location,
-	Population,
+SELECT	location,
+	population,
 	date,
 	MAX(total_cases) AS HighestInfectionCount,
 	Max((total_cases/population))*100 AS PercentPopulationInfected
 FROM	Portfolio_KC..CovidDeaths
-Group by Location, Population, date
+Group by location, population, date
+
+-- VIEW 5: for Tableau Dashboard 'CovidVaccination'
+CREATE VIEW VaccinationNumbersByWorld AS
+SELECT	dea.location,
+	dea.date,
+	dea.population,
+	vac.people_vaccinated,
+	vac.people_fully_vaccinated,
+	MAX(people_vaccinated) AS TotalPeopleVaccinated,
+	MAX(population) AS TotalPopuplation,
+	MAX(people_vaccinated) / MAX(population) AS PartiallyVaccinatedOverPopulation,
+	(1 - (MAX(people_vaccinated) / MAX(population))) AS PeopleNotVaccinatedOverPopulation
+FROM	Portfolio_KC..CovidDeaths dea
+JOIN	Portfolio_KC..CovidVaccinations vac
+	ON	dea.location = vac.location
+	AND	dea.date = vac.date
+WHERE dea.Location = 'World'
+GROUP BY dea.location, dea.date, dea.population, vac.people_vaccinated, vac.people_fully_vaccinated
+ORDER BY TotalPeopleVaccinated asc
+
+-- VIEW 6: for Tableau Dashboard 'CovidVaccination'
+--CREATE VIEW VaccinationNumbersByCountry AS
+SELECT	dea.continent,
+	dea.location,
+	dea.date,
+	dea.population,
+	vac.people_vaccinated,
+	vac.people_fully_vaccinated,
+	vac.total_vaccinations_per_hundred,
+	MAX(CAST(vac.gdp_per_capita as int)) AS MaxGDP,
+	MAX(people_vaccinated) AS TotalPeopleVaccinated,
+	MAX(population) AS TotalPopuplation,
+	MAX(people_vaccinated) / MAX(population) AS PartiallyVaccinatedOverPopulation,
+	(1 - (MAX(people_vaccinated) / MAX(population))) AS PeopleNotVaccinatedOverPopulation
+FROM	Portfolio_KC..CovidDeaths dea
+JOIN	Portfolio_KC..CovidVaccinations vac
+	ON	dea.location = vac.location
+	AND	dea.date = vac.date
+WHERE	dea.continent is not null
+	AND dea.location <> 'Gibraltar'
+	AND dea.location <> 'Tokelau'
+	AND dea.location <> 'United Arab Emirates'
+	AND dea.location <> 'Qatar'
+	AND dea.location <> 'Brunei'
+	AND dea.location <> 'Pitcairn'
+GROUP BY dea.continent, 
+	dea.location,
+	dea.date, 
+	dea.population, 
+	vac.people_vaccinated, 
+	vac.people_fully_vaccinated, 
+	vac.total_vaccinations_per_hundred,
+	vac.gdp_per_capita
+ORDER BY TotalPeopleVaccinated asc
 
 
 
 
--- DATA CLEANING IN SQL
+-- SECTION 3: DATA CLEANING IN SQL
+
+-- Verified that date is already standardized
+-- Verified that there are no duplicate entries
+-- Verified that there are no unused columns
 
 -- Action: Remove rows where column 'continent' is NULL
 -- Reason: Rows that are NULL in column 'continent' will have non-country data in column 'location'
@@ -250,22 +314,17 @@ JOIN	Portfolio_KC..CovidVaccinations_Clean vac
 ORDER BY dea.population
 
 UPDATE	Portfolio_KC..CovidDeaths_Clean
-SET	total_cases = 0
+SET		total_cases = 0
 WHERE	total_cases IS NULL
 
 UPDATE	Portfolio_KC..CovidDeaths_Clean
-SET	new_cases = 0
+SET		new_cases = 0
 WHERE	new_cases IS NULL
 
 UPDATE	Portfolio_KC..CovidDeaths_Clean
-SET	total_deaths = 0
+SET		total_deaths = 0
 WHERE	total_deaths IS NULL
 
 UPDATE	Portfolio_KC..CovidVaccinations_Clean
-SET	new_vaccinations = 0
+SET		new_vaccinations = 0
 WHERE	new_vaccinations IS NULL
-
-
--- Verified that date is already standardized
--- Verified that there are no duplicate entries
--- Verified that there are no unused columns
