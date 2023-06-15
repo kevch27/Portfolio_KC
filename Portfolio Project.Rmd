@@ -1,0 +1,105 @@
+---
+title: "Portfolio Project"
+author: "Kevin Chen"
+date: "2023-06-15"
+output: html_document
+---
+
+NOTE TO SELF: https://www.online-convert.com/
+
+## Introduction
+
+The purpose of this portfolio is to solve a business task in a healthcare industry while demonstration various technical skills.
+
+## Table of Contents
+[Go to Section 1](###section-1-ask)
+
+[Go to Section 6](#section-6-act)
+
+[Go to Hello](#hello)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### HELLO
+
+### Section 1: Ask (section-1-ask)
+#### 1a. Identify the business task
+#### 1b. Consider key stakeholder 
+
+### Section 2: Prepare
+#### a. Download data and store it appropriately
+##### b. Identify how it’s organized
+###### c. Sort and filter the data. 
+
+### Section 3: Process
+a. Check the data for errors
+b. Choose your tools
+c. Transform the data so you can work with it effectively
+d. Document the cleaning process. 
+
+### Section 4: Analyze
+a. Aggregate your data so it’s useful and accessible
+b. Organize and format your data
+c. Perform calculations
+d. Identify trends and relationships. 
+
+### Section 5: Share
+a. Determine the best way to share your findings
+b. Create effective data visualizations
+c. Present your findings
+d. Ensure your work is accessible 
+
+### Section 6: Act
+a. Create your portfolio
+b. Add your case study
+c. Practice presenting your case study to a friend or family member
+
+### Section 7: Documenting (Optional)
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
