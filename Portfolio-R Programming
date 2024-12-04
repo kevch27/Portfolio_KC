@@ -1,0 +1,282 @@
+# By: Kevin Chen, Date: 6/20/2023
+# This document showcases my proficiency in R programming through the Step 4 Analysis conducted as part of my  portfolio project.
+
+# Step 0: Set Working Directory, where dataset file is located
+setwd("D:/Work/Portfolio")
+setwd("D:/Work/Portfolio/Dataset")
+
+# Step 1: Load packages and libraries
+install.packages("tidyverse")
+install.packages("tidyr")
+install.packages("dplyr", dependencies = TRUE)
+install.packages("plyr")
+install.packages("knitr")
+install.packages("kableExtra")
+install.packages("png")
+
+library(tidyverse)
+library(tidyr)
+library(dplyr)
+library(plyr)
+library(knitr)
+library(ggplot2)
+library(readxl)
+library(skimr)
+library(png)
+
+# Step 2: Import Data
+portfolio_df <- read_xlsx("Rev08_Portfolio_Project.xlsx")
+
+
+# Step 3: Explore Data
+colnames(portfolio_df)
+str(portfolio_df)
+glimpse(portfolio_df)
+head(portfolio_df)
+skim_without_charts(portfolio_df)
+
+# Step 4: Count of participating countries
+# Note: Need to exclude the entry 'Global' from the count
+country_counts <- portfolio_df %>%
+  filter(country != 'Global') %>%
+  distinct(country) %>%
+  summarize(count = n_distinct(country))
+
+print(country_counts)
+
+# Step 5: Summarize "health problems" vs "age" 
+
+health_problem_age_15to24 <- portfolio_df %>%
+  filter(segment == '15-24' & country != 'Global') %>%
+  mutate(health_problems__yes = as.numeric(health_problems__yes)) %>%
+ summarise(health_problem_age1 = mean(health_problems__yes, na.rm = TRUE))
+
+health_problem_age_25to34 <- portfolio_df %>%
+  filter(segment == '25-34' & country != 'Global') %>%
+  mutate(health_problems__yes = as.numeric(health_problems__yes)) %>%
+  summarise(health_problem_age2 = mean(health_problems__yes, na.rm = TRUE))
+
+health_problem_age_35to44 <- portfolio_df %>%
+  filter(segment == '35-44' & country != 'Global') %>%
+  mutate(health_problems__yes = as.numeric(health_problems__yes)) %>%
+  summarise(health_problem_age3 = mean(health_problems__yes, na.rm = TRUE))
+
+health_problem_age_45to64 <- portfolio_df %>%
+  filter(segment == '45-64' & country != 'Global') %>%
+  mutate(health_problems__yes = as.numeric(health_problems__yes)) %>%
+  summarise(health_problem_age4 = mean(health_problems__yes, na.rm = TRUE))
+
+health_problem_age_over65 <- portfolio_df %>%
+  filter(segment == '65+' & country != 'Global') %>%
+  mutate(health_problems__yes = as.numeric(health_problems__yes)) %>%
+  summarise(health_problem_age5 = mean(health_problems__yes, na.rm = TRUE))
+
+print(sprintf("%.2f%%", health_problem_age_15to24 * 100))
+print(sprintf("%.2f%%", health_problem_age_25to34 * 100))
+print(sprintf("%.2f%%", health_problem_age_35to44 * 100))
+print(sprintf("%.2f%%", health_problem_age_45to64 * 100))
+print(sprintf("%.2f%%", health_problem_age_over65 * 100))
+
+# Step 6: Summarize "health problems" vs "employment status" 
+
+health_problem_employed_for_employer <- portfolio_df %>%
+  filter(segment == 'Employed full time for an employer' & country != 'Global') %>%
+  mutate(health_problems__yes = as.numeric(health_problems__yes)) %>%
+  summarise(health_problem_employment1 = mean(health_problems__yes, na.rm = TRUE))
+
+health_problem_employed_for_self <- portfolio_df %>%
+  filter(segment == 'Employed full time for self' & country != 'Global') %>%
+  mutate(health_problems__yes = as.numeric(health_problems__yes)) %>%
+  summarise(health_problem_employment2 = mean(health_problems__yes, na.rm = TRUE))
+
+health_problem_parttime_refuse_fulltime <- portfolio_df %>%
+  filter(segment == 'Employed part time do not want full time' & country != 'Global') %>%
+  mutate(health_problems__yes = as.numeric(health_problems__yes)) %>%
+  summarise(health_problem_employment3 = mean(health_problems__yes, na.rm = TRUE))
+
+health_problem_parttime_want_fulltime <- portfolio_df %>%
+  filter(segment == 'Employed part time want full time' & country != 'Global') %>%
+  mutate(health_problems__yes = as.numeric(health_problems__yes)) %>%
+  summarise(health_problem_employment5 = mean(health_problems__yes, na.rm = TRUE))
+
+health_problem_Unemployed <- portfolio_df %>%
+  filter(segment == 'Unemployed' & country != 'Global') %>%
+  mutate(health_problems__yes = as.numeric(health_problems__yes)) %>%
+  summarise(health_problem_employment4 = mean(health_problems__yes, na.rm = TRUE))
+
+health_problem_Out_of_workforce <- portfolio_df %>%
+  filter(segment == 'Out of workforce' & country != 'Global') %>%
+  mutate(health_problems__yes = as.numeric(health_problems__yes)) %>%
+  summarise(health_problem_employment6 = mean(health_problems__yes, na.rm = TRUE))
+
+print(sprintf("%.2f%%", health_problem_employed_for_employer * 100))
+print(sprintf("%.2f%%", health_problem_employed_for_self * 100))
+print(sprintf("%.2f%%", health_problem_parttime_refuse_fulltime * 100))
+print(sprintf("%.2f%%", health_problem_parttime_want_fulltime * 100))
+print(sprintf("%.2f%%", health_problem_Unemployed * 100))
+print(sprintf("%.2f%%", health_problem_Out_of_workforce * 100))
+
+# Step 7: Summarize "health problems" vs "gender" 
+
+health_problem_male <- portfolio_df %>%
+  filter(segment == 'Male' & country != 'Global') %>%
+  mutate(health_problems__yes = as.numeric(health_problems__yes)) %>%
+  summarise(health_problem_employment1 = mean(health_problems__yes, na.rm = TRUE))
+
+health_problem_female <- portfolio_df %>%
+  filter(segment == 'Female' & country != 'Global') %>%
+  mutate(health_problems__yes = as.numeric(health_problems__yes)) %>%
+  summarise(health_problem_employment1 = mean(health_problems__yes, na.rm = TRUE))
+
+print(sprintf("%.2f%%", health_problem_male * 100))
+print(sprintf("%.2f%%", health_problem_female * 100))
+
+# Step 8: Summarize "health problems" vs "Per Capita Income Quintiles" 
+
+health_problem_poorest_20 <- portfolio_df %>%
+  filter(segment == 'Poorest 20%' & country != 'Global') %>%
+  mutate(health_problems__yes = as.numeric(health_problems__yes)) %>%
+  summarise(health_problem_employment1 = mean(health_problems__yes, na.rm = TRUE))
+
+health_problem_second_20 <- portfolio_df %>%
+  filter(segment == 'Second 20%' & country != 'Global') %>%
+  mutate(health_problems__yes = as.numeric(health_problems__yes)) %>%
+  summarise(health_problem_employment1 = mean(health_problems__yes, na.rm = TRUE))
+
+health_problem_middle_20 <- portfolio_df %>%
+  filter(segment == 'Middle 20%' & country != 'Global') %>%
+  mutate(health_problems__yes = as.numeric(health_problems__yes)) %>%
+  summarise(health_problem_employment1 = mean(health_problems__yes, na.rm = TRUE))
+
+health_problem_fourth_20 <- portfolio_df %>%
+  filter(segment == 'Fourth 20%' & country != 'Global') %>%
+  mutate(health_problems__yes = as.numeric(health_problems__yes)) %>%
+  summarise(health_problem_employment1 = mean(health_problems__yes, na.rm = TRUE))
+
+health_problem_richest_20 <- portfolio_df %>%
+  filter(segment == 'Richest 20%' & country != 'Global') %>%
+  mutate(health_problems__yes = as.numeric(health_problems__yes)) %>%
+  summarise(health_problem_employment1 = mean(health_problems__yes, na.rm = TRUE))
+
+print(sprintf("%.2f%%", health_problem_poorest_20 * 100))
+print(sprintf("%.2f%%", health_problem_second_20 * 100))
+print(sprintf("%.2f%%", health_problem_middle_20 * 100))
+print(sprintf("%.2f%%", health_problem_fourth_20 * 100))
+print(sprintf("%.2f%%", health_problem_richest_20 * 100))
+
+# Step 9: Summarize "health problems" vs "Urban/Rural"
+
+health_problem_rural <- portfolio_df %>%
+  filter(segment == 'A rural area or on a farm' & country != 'Global') %>%
+  mutate(health_problems__yes = as.numeric(health_problems__yes)) %>%
+  summarise(health_problem_employment1 = mean(health_problems__yes, na.rm = TRUE))
+
+health_problem_town <- portfolio_df %>%
+  filter(segment == 'A small town or villAge' & country != 'Global') %>%
+  mutate(health_problems__yes = as.numeric(health_problems__yes)) %>%
+  summarise(health_problem_employment1 = mean(health_problems__yes, na.rm = TRUE))
+
+health_problem_city <- portfolio_df %>%
+  filter(segment == 'A large city' & country != 'Global') %>%
+  mutate(health_problems__yes = as.numeric(health_problems__yes)) %>%
+  summarise(health_problem_employment1 = mean(health_problems__yes, na.rm = TRUE))
+
+health_problem_suburb <- portfolio_df %>%
+  filter(segment == 'A suburb of a large city' & country != 'Global') %>%
+  mutate(health_problems__yes = as.numeric(health_problems__yes)) %>%
+  summarise(health_problem_employment1 = mean(health_problems__yes, na.rm = TRUE))
+
+print(sprintf("%.2f%%", health_problem_rural * 100))
+print(sprintf("%.2f%%", health_problem_town * 100))
+print(sprintf("%.2f%%", health_problem_city * 100))
+print(sprintf("%.2f%%", health_problem_suburb * 100))
+
+# Step 10: Investigating correlation between "Health Problems" and "Recent Calmness"
+
+correlation_health_calmness_yes <- portfolio_df %>%
+  filter(country != 'Global') %>%
+  select(health_problems__yes, recent_calmness__yes) %>%
+  cor()
+
+correlation_health_calmness_no <- portfolio_df %>%
+  filter(country != 'Global') %>%
+  select(health_problems__yes, recent_calmness__no) %>%
+  cor()
+
+print(correlation_health_calmness_yes)
+print(correlation_health_calmness_no)
+
+# Scatter plot between "Health Problems" and "Recent Calmness"
+ggplot(portfolio_df) + 
+  geom_point(mapping = aes(x = health_problems__yes, y = recent_calmness__no)) +
+  geom_smooth(mapping = aes(x = health_problems__yes, y = recent_calmness__no)) +
+  labs(x = "Health Problems", y = "No Recent Calmness") +
+  ggtitle("Correlation between having Health Problems and Not Feeling Calmness Recently")
+
+# Step 11: Investigating correlation between "Health Problems" and "Life at Peace"
+
+correlation_health_life_at_peace_yes <- portfolio_df %>%
+  filter(country != 'Global') %>%
+  select(health_problems__yes, life_at_peace__yes) %>%
+  cor()
+
+correlation_health_life_at_peace_no <- portfolio_df %>%
+  filter(country != 'Global') %>%
+  select(health_problems__yes, life_at_peace__no) %>%
+  cor()
+
+print(correlation_health_life_at_peace_yes)
+print(correlation_health_life_at_peace_no) 
+
+# Scatter plot between "Health Problems" and "Life at Peace"
+ggplot(portfolio_df) + 
+  geom_point(mapping = aes(x = health_problems__yes, y = life_at_peace__no)) +
+  geom_smooth(mapping = aes(x = health_problems__yes, y = life_at_peace__no)) +
+  labs(x = "Health Problems", y = "Not feeling life at peace") +
+  ggtitle("Correlation between having Health-problems and Not-feeling-life-is-at-peace")
+
+# Step 12: Investigating correlation between "Health Problems" and "Work-Life Balance"
+
+correlation_health_life_in_balance_yes <- portfolio_df %>%
+  filter(country != 'Global') %>%
+  select(health_problems__yes, life_in_balance__yes) %>%
+  cor()
+
+correlation_health_life_in_balance_no <- portfolio_df %>%
+  filter(country != 'Global') %>%
+  select(health_problems__yes, life_in_balance__no) %>%
+  cor()
+
+print(correlation_health_life_in_balance_yes)
+print(correlation_health_life_in_balance_no) 
+
+# Scatter plot between "Health Problems" and "Work-Life Balance"
+ggplot(portfolio_df) + 
+  geom_point(mapping = aes(x = health_problems__yes, y = life_in_balance__no)) +
+  geom_smooth(mapping = aes(x = health_problems__yes, y = life_in_balance__no)) +
+  labs(x = "Health Problems", y = "No work-life balance") +
+  ggtitle("Correlation between having Health-problems and Not-having-work-life-balance")
+
+
+# Step 13: Investigating correlation between "Health Problems" and "Job Satisfaction"
+
+correlation_health_job_satisfaction_yes <- portfolio_df %>%
+  filter(country != 'Global') %>%
+  select(health_problems__yes, job_satisfaction__yes) %>%
+  cor()
+
+correlation_health_job_satisfaction_no <- portfolio_df %>%
+  filter(country != 'Global') %>%
+  select(health_problems__yes, job_satisfaction__no) %>%
+  cor()
+
+print(correlation_health_job_satisfaction_yes)
+print(correlation_health_job_satisfaction_no) 
+
+# Scatter plot between "Health Problems" and "Job Satisfaction"
+ggplot(portfolio_df) + 
+  geom_point(mapping = aes(x = health_problems__yes, y = job_satisfaction__no)) +
+  geom_smooth(mapping = aes(x = health_problems__yes, y = job_satisfaction__no)) +
+  labs(x = "Health Problems", y = "No Job Satisfaction") +
+  ggtitle("Correlation between having Health-problems and Not-having-job-satisfaction")
+
